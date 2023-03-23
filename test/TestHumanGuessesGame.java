@@ -1,7 +1,7 @@
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
-// the tests in this file use the test double
+// the tests in this file use dependency injection
 public class TestHumanGuessesGame {
     @Test
     public void lowGuess() {
