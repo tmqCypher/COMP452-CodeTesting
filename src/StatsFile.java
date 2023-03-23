@@ -61,7 +61,16 @@ public class StatsFile extends GameStats {
     }
 
     @Override
-    public int maxNumGuesses(){
+    public int maxNumGuesses() {
         return (statsMap.isEmpty() ? 0 : statsMap.lastKey());
+    }
+
+    @Override
+    public int sumGames(int lowerBound, int upperBound) {
+        int result = 0;
+        for(int numGuesses=lowerBound; numGuesses<upperBound; numGuesses++){
+            result += this.numGames(numGuesses);
+        }
+        return result;
     }
 }

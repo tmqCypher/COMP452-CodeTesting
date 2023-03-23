@@ -15,4 +15,10 @@ public abstract class GameStats {
      * @return the maximum number of guesses that any game took
      */
     public abstract int maxNumGuesses();
+
+    /**
+     * @return the number of games that took between lowerBound (inclusive)
+     * and upperBound (exclusive) guesses
+     */
+    public abstract int sumGames(int lowerBound, int upperBound);
 }
