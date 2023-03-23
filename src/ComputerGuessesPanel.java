@@ -21,9 +21,7 @@ public class ComputerGuessesPanel extends JPanel {
     private int lowerBound; // correct number is >= lowerBound
 
     public ComputerGuessesPanel(JPanel cardsPanel, Consumer<GameResult> gameFinishedCallback){
-        numGuesses = 0;
-        upperBound = 1000;
-        lowerBound = 1;
+        setDefaults();
 
         this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
 
@@ -75,13 +73,17 @@ public class ComputerGuessesPanel extends JPanel {
 
         this.addComponentListener(new java.awt.event.ComponentAdapter() {
             public void componentShown(java.awt.event.ComponentEvent e) {
-                numGuesses = 0;
-                upperBound = 1000;
-                lowerBound = 1;
+                setDefaults();
 
                 updateForNextGuess(guessMessage, false);
             }
         });
+    }
+
+    private void setDefaults() {
+        numGuesses = 0;
+        upperBound = 1000;
+        lowerBound = 1;
     }
 
     private void updateForNextGuess(JLabel guessMessage, boolean increaseGuesses) {
