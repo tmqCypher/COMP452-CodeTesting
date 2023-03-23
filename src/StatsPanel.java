@@ -5,62 +5,27 @@ import java.util.ArrayList;
 /**
  * Displays statistics about how many guesses the person took during past games
  * Loads data from the file and displays in a JPanel
- *
  * TODO: refactor this class
  */
 public class StatsPanel extends JPanel {
 
-    private final JPanel resultsPanel;
 
     // Stats will display the number of games in each "bin"
     // A bin goes from BIN_EDGES[i] through BIN_EDGES[i+1]-1, inclusive
     private static final int [] BIN_EDGES = {1, 2, 4, 6, 8, 10, 12, 14};
-    private ArrayList<JLabel> resultsLabels;
+    private final ArrayList<JLabel> resultsLabels;
 
     public StatsPanel(JPanel cardsPanel) {
 
         this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
 
-        JLabel title = new JLabel("Your Stats");
-        this.add(title);
-        title.setAlignmentX(Component.CENTER_ALIGNMENT);
-
-        JLabel subtitle = new JLabel("(Past 30 Days)");
-        this.add(subtitle);
-        subtitle.setAlignmentX(Component.CENTER_ALIGNMENT);
+        this.add(makeCenteredLabel(("Your Stats")));
+        this.add(makeCenteredLabel("(Past 30 Days)"));
 
         this.add(Box.createRigidArea(new Dimension(0,40)));
 
-        resultsPanel = new JPanel();
-        resultsLabels = new ArrayList<>();
-        resultsPanel.setLayout(new GridLayout(0, 2));
-        resultsPanel.add(new JLabel("Guesses"));
-        resultsPanel.add(new JLabel("Games"));
-        for(int binIndex=0; binIndex<BIN_EDGES.length; binIndex++){
-            String binName;
-            if(binIndex == BIN_EDGES.length-1){
-                // last bin
-                binName = BIN_EDGES[binIndex] + " or more";
-            }
-            else{
-                int upperBound = BIN_EDGES[binIndex+1] - 1;
-                if(upperBound > BIN_EDGES[binIndex]){
-                    binName = BIN_EDGES[binIndex] + "-" + upperBound;
-                }
-                else{
-                    binName = Integer.toString(BIN_EDGES[binIndex]);
-                }
-            }
-
-            resultsPanel.add(new JLabel(binName));
-            JLabel result = new JLabel("--");
-            resultsLabels.add(result);
-            resultsPanel.add(result);
-        }
-
-        resultsPanel.setMinimumSize(new Dimension(120, 120));
-        this.add(resultsPanel);
-        resultsPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        this.resultsLabels = makeResultsLabels();
+        this.add(makeResultsPanel(this.resultsLabels));
         updateResultsPanel();
 
         this.add(Box.createVerticalGlue());
@@ -83,6 +48,47 @@ public class StatsPanel extends JPanel {
         });
     }
 
+    private JLabel makeCenteredLabel(String text) {
+        JLabel label = new JLabel(text);
+        label.setAlignmentX(Component.CENTER_ALIGNMENT);
+        return label;
+    }
+
+    private static ArrayList<JLabel> makeResultsLabels(){
+        ArrayList<JLabel> labels = new ArrayList<>();
+        for(int binIndex=0; binIndex<BIN_EDGES.length; binIndex++){
+            labels.add(new JLabel("--"));
+        }
+        return labels;
+    }
+
+    private static JPanel makeResultsPanel(ArrayList<JLabel> labels){
+        JPanel panel = new JPanel();
+        panel.setLayout(new GridLayout(0, 2));
+        panel.add(new JLabel("Guesses"));
+        panel.add(new JLabel("Games"));
+        for(int binIndex=0; binIndex<BIN_EDGES.length; binIndex++){
+            String binName = getBinName(binIndex);
+            panel.add(new JLabel(binName));
+            panel.add(labels.get(binIndex));
+        }
+        panel.setMinimumSize(new Dimension(120, 120));
+        panel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        return panel;
+    }
+
+    private static String getBinName(int index) {
+        String binName = Integer.toString(BIN_EDGES[index]);
+        if(index == BIN_EDGES.length-1){
+            // last bin
+            binName += " or more";
+        }
+        else if(BIN_EDGES[index+1] - 1 > BIN_EDGES[index]){
+            // upper bound
+            binName += "-" + (BIN_EDGES[index+1] - 1);
+        }
+        return binName;
+    }
 
     private void clearResults(){
         for(JLabel lbl : resultsLabels){
