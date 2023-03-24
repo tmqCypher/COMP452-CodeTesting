@@ -5,13 +5,11 @@ import java.util.ArrayList;
 /**
  * Displays statistics about how many guesses the person took during past games
  * Loads data from the file and displays in a JPanel
- * TODO: refactor this class
  */
 public class StatsPanel extends JPanel {
 
     // Stats will display the number of games in each "bin"
-    // A bin goes from BIN_EDGES[i] through BIN_EDGES[i+1]-1, inclusive
-    private static final int [] BIN_EDGES = {1, 2, 4, 6, 8, 10, 12, 14};
+    // A bin goes from StatsBins.EDGES[i] through StatsBins.EDGES[i+1]-1, inclusive
     private final ArrayList<JLabel> resultsLabels;
 
     public StatsPanel(JPanel cardsPanel) {
@@ -35,20 +33,6 @@ public class StatsPanel extends JPanel {
         });
     }
 
-    // TODO: Unit test this
-    private static String getBinName(int index) {
-        String binName = Integer.toString(BIN_EDGES[index]);
-        if(index == BIN_EDGES.length-1) {
-            // last bin
-            binName += " or more";
-        }
-        else if(BIN_EDGES[index+1] - 1 > BIN_EDGES[index]) {
-            // upper bound
-            binName += "-" + (BIN_EDGES[index+1] - 1);
-        }
-        return binName;
-    }
-
     private static JLabel makeCenteredLabel(String text) {
         JLabel label = new JLabel(text);
         label.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -68,7 +52,7 @@ public class StatsPanel extends JPanel {
 
     private static ArrayList<JLabel> makeResultsLabels() {
         ArrayList<JLabel> labels = new ArrayList<>();
-        for(int binIndex=0; binIndex<BIN_EDGES.length; binIndex++) {
+        for(int binIndex=0; binIndex<StatsBins.length(); binIndex++) {
             labels.add(new JLabel("--"));
         }
         return labels;
@@ -79,8 +63,8 @@ public class StatsPanel extends JPanel {
         panel.setLayout(new GridLayout(0, 2));
         panel.add(new JLabel("Guesses"));
         panel.add(new JLabel("Games"));
-        for(int binIndex=0; binIndex<BIN_EDGES.length; binIndex++){
-            String binName = getBinName(binIndex);
+        for(int binIndex=0; binIndex<StatsBins.length(); binIndex++){
+            String binName = StatsBins.getBinName(binIndex);
             panel.add(new JLabel(binName));
             panel.add(labels.get(binIndex));
         }
@@ -98,11 +82,11 @@ public class StatsPanel extends JPanel {
         clearResults(labels);
         GameStats stats = new StatsFile();
 
-        for(int binIndex=0; binIndex<BIN_EDGES.length; binIndex++) {
-            final int lowerBound = BIN_EDGES[binIndex];
-            final int upperBound = binIndex == BIN_EDGES.length-1?
-                    stats.maxNumGuesses() : BIN_EDGES[binIndex+1];
-            int numGames = stats.sumGames(lowerBound, upperBound);
+        for(int binIndex=0; binIndex<StatsBins.length(); binIndex++) {
+            final int lowerBound = StatsBins.EDGES[binIndex];
+            final int upperBound = binIndex == StatsBins.length()-1?
+                    stats.maxNumGuesses() : StatsBins.EDGES[binIndex+1];
+            int numGames = stats.countGames(lowerBound, upperBound);
 
             JLabel resultLabel = labels.get(binIndex);
             resultLabel.setText(Integer.toString(numGames));

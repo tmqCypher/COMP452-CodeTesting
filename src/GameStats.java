@@ -17,8 +17,8 @@ public abstract class GameStats {
     public abstract int maxNumGuesses();
 
     /**
-     * @return the number of games that took between lowerBound (inclusive)
-     * and upperBound (exclusive) guesses
+     * @return the number of games that took between minGuesses (inclusive)
+     * and maxGuesses (exclusive) guesses
      */
-    public abstract int sumGames(int lowerBound, int upperBound);
+    public abstract int countGames(int minGuesses, int maxGuesses);
 }

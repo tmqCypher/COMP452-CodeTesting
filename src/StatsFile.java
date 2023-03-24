@@ -11,40 +11,43 @@ import java.util.TreeMap;
 
 /**
  * File-backed implementation of GameStats
- *
  * Returns the number of games *within the last 30 days* where the person took a given number of guesses
  */
 public class StatsFile extends GameStats {
+
     public static final String FILENAME = "guess-the-number-stats.csv";
+    private CSVReader csv;
 
     // maps the number of guesses required to the number of games within
     // the past 30 days where the person took that many guesses
     private SortedMap<Integer, Integer> statsMap;
 
-    public StatsFile(){
+    public StatsFile(CSVReader csv, LocalDateTime limit) {
+        this.csv = csv;
         statsMap = new TreeMap<>();
-        LocalDateTime limit = LocalDateTime.now().minusDays(30);
         for (int numGuesses : loadStatsAfter(limit)) {
             statsMap.put(numGuesses, 1 + statsMap.getOrDefault(numGuesses, 0));
         }
     }
 
+    public StatsFile() {
+        this(loadCSV(FILENAME), LocalDateTime.now().minusDays(30));
+    }
+
     private ArrayList<Integer> loadStatsAfter(LocalDateTime limit) {
         ArrayList<Integer> results = new ArrayList<>();
-        try (CSVReader csvReader = new CSVReader(new FileReader(FILENAME))) {
+        try {
             String[] values;
-            while ((values = csvReader.readNext()) != null) {
+            while ((values = csv.readNext()) != null) {
                 // values should have the date and the number of guesses as the two fields
                 try {
                     LocalDateTime timestamp = LocalDateTime.parse(values[0]);
                     int numGuesses = Integer.parseInt(values[1]);
                     if (timestamp.isAfter(limit)) results.add(numGuesses);
-                }
-                catch(NumberFormatException nfe){
+                } catch(NumberFormatException nfe){
                     // NOTE: In a full implementation, we would log this error and possibly alert the user
                     throw nfe;
-                }
-                catch(DateTimeParseException dtpe){
+                } catch(DateTimeParseException dtpe){
                     // NOTE: In a full implementation, we would log this error and possibly alert the user
                     throw dtpe;
                 }
@@ -59,6 +62,19 @@ public class StatsFile extends GameStats {
         return results;
     }
 
+    public static CSVReader loadCSV(String path) {
+        CSVReader reader = null;
+        try {
+            reader = new CSVReader(new FileReader(path));
+        } catch (IOException e) {
+            // NOTE: In a full implementation, we would log this error and alert the user
+            // NOTE: For this project, you do not need unit tests for handling this exception.
+        }
+        return reader;
+    }
+
+    public int size() { return statsMap.size(); }
+
     @Override
     public int numGames(int numGuesses) {
         return statsMap.getOrDefault(numGuesses, 0);
@@ -70,9 +86,9 @@ public class StatsFile extends GameStats {
     }
 
     @Override
-    public int sumGames(int lowerBound, int upperBound) {
+    public int countGames(int minGuesses, int maxGuesses) {
         int result = 0;
-        for(int numGuesses=lowerBound; numGuesses<upperBound; numGuesses++){
+        for(int numGuesses=minGuesses; numGuesses<maxGuesses; numGuesses++){
             result += this.numGames(numGuesses);
         }
         return result;
